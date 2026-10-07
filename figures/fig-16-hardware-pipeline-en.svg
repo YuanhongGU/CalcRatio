@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="640" viewBox="0 0 1080 640">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      text { font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+      .title { font-size: 15px; font-weight: 700; fill: #0f172a; }
+      .script { font-size: 14px; font-weight: 650; fill: #ffffff; }
+      .label { font-size: 14px; font-weight: 650; fill: #0f172a; }
+      .sub { font-size: 12px; fill: #334155; }
+      .subw { font-size: 12px; fill: #dbeafe; }
+    </style>
+  </defs>
+  <rect width="1080" height="640" rx="16" fill="#f8fafc"/>
+
+  <text class="title" x="36" y="36">1. Filename to ratio</text>
+  <rect x="36" y="52" width="250" height="72" rx="10" fill="#dbeafe" stroke="#1d4ed8"/>
+  <text class="label" x="52" y="82">setting CSV</text>
+  <text class="sub" x="52" y="104">planned filename, blue fraction</text>
+
+  <line x1="286" y1="88" x2="328" y2="88" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="336" y="52" width="280" height="72" rx="10" fill="#1e3a5f"/>
+  <text class="script" x="352" y="94">build_id_ratio_dict.py</text>
+
+  <line x1="616" y1="88" x2="658" y2="88" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="666" y="52" width="378" height="72" rx="10" fill="#dcfce7" stroke="#15803d"/>
+  <text class="label" x="682" y="82">mapping.npy</text>
+  <text class="sub" x="682" y="104">data/1_settings and data/2_settings</text>
+
+  <text class="title" x="36" y="176">2. Stage features</text>
+  <rect x="36" y="192" width="250" height="108" rx="10" fill="#dbeafe" stroke="#1d4ed8"/>
+  <text class="label" x="52" y="222">Phyphox Excel</text>
+  <text class="sub" x="52" y="246">1_original, stage 2 of 5</text>
+  <text class="sub" x="52" y="268">2_original, its only stage</text>
+
+  <line x1="286" y1="246" x2="328" y2="246" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="336" y="210" width="280" height="72" rx="10" fill="#1e3a5f"/>
+  <text class="script" x="384" y="252">data_preprocess.py</text>
+
+  <line x1="616" y1="230" x2="658" y2="210" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+  <line x1="616" y1="262" x2="658" y2="282" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="666" y="176" width="378" height="56" rx="10" fill="#dcfce7" stroke="#15803d"/>
+  <text class="label" x="682" y="210">extracted_features.npy</text>
+  <rect x="666" y="244" width="378" height="56" rx="10" fill="#dcfce7" stroke="#15803d"/>
+  <text class="label" x="682" y="278">processed_data.pkl</text>
+
+  <line x1="854" y1="124" x2="854" y2="168" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <text class="title" x="36" y="364">3. Shared mixing model</text>
+  <rect x="36" y="384" width="300" height="88" rx="10" fill="#e2e8f0" stroke="#475569"/>
+  <text class="label" x="52" y="418">Both feature files</text>
+  <text class="sub" x="52" y="442">plus both mapping.npy files</text>
+
+  <line x1="336" y1="428" x2="378" y2="428" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="386" y="392" width="220" height="72" rx="10" fill="#1e3a5f"/>
+  <text class="script" x="442" y="434">fit_model.py</text>
+
+  <line x1="606" y1="428" x2="648" y2="428" stroke="#334155" stroke-width="2" marker-end="url(#arrow)"/>
+
+  <rect x="656" y="360" width="388" height="136" rx="10" fill="#fef3c7" stroke="#b45309"/>
+  <text class="label" x="672" y="392">Logistic blue-fraction model</text>
+  <text class="sub" x="672" y="418">combined_modeling_data.pkl</text>
+  <text class="sub" x="672" y="440">mixing_model.npy</text>
+  <text class="sub" x="672" y="462">fit surface, residuals, and QQ plot</text>
+
+  <text class="sub" x="36" y="612">Pure yellow is ratio 0 and pure blue is ratio 1. Their measured Hue and Saturation anchor each experiment before the shared curve is fit.</text>
+</svg>
