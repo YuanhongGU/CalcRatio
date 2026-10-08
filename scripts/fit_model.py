@@ -64,8 +64,8 @@ def parse_args() -> argparse.Namespace:
                         help="scipy least_squares method")
     parser.add_argument("--baseline_cols",       required=False, type=str,   default="Hue,Saturation",
                         help="comma-separated columns of the linear baseline")
-    parser.add_argument("--hist_bins",           required=False, type=int,   default=10,
-                        help="bins in the residual histogram")
+    parser.add_argument("--hist_bin_width",      required=False, type=float, default=0.1,
+                        help="width of each residual histogram bin, in ratio units")
     parser.add_argument("--grid_size",           required=False, type=int,   default=50,
                         help="points along each axis of the fitted surface")
     parser.add_argument("--fig_width",           required=False, type=float, default=8.0,
@@ -342,29 +342,105 @@ def print_model(
         )
 
 
+def residual_bin_edges(resid: np.ndarray, bin_width: float) -> np.ndarray:
+    """Build bin edges of a fixed width that cover every residual.
+
+    Edges fall on multiples of ``bin_width``, so zero sits on a tick.
+
+    :param resid: Residual values.
+    :param bin_width: Width of each bin, in the same units as ``resid``.
+    :returns: Increasing bin edges, including the rightmost edge.
+    """
+    if bin_width <= 0:
+        raise ValueError("bin_width must be positive.")
+    values = np.asarray(resid, dtype=float)
+    lowest = np.floor(np.min(values) / bin_width) * bin_width
+    highest = np.ceil(np.max(values) / bin_width) * bin_width
+    if highest <= lowest:
+        highest = lowest + bin_width
+    n_bins = int(np.round((highest - lowest) / bin_width))
+    return lowest + np.arange(n_bins + 1) * bin_width
+
+
+def plot_residual_histogram(resid: np.ndarray, bin_width: float):
+    """Draw a residual histogram with bin-edge ticks, a y grid, and bar counts.
+
+    :param resid: Fitted ratio minus measured ratio.
+    :param bin_width: Width of each bin, in ratio units.
+    :returns: Figure and axes of the histogram.
+    """
+    values = np.asarray(resid, dtype=float)
+    edges = residual_bin_edges(values, bin_width)
+    fig, ax = plt.subplots(figsize=(6.4, 4.4), dpi=150)
+    counts, _, bars = ax.hist(
+        values,
+        bins=edges,
+        color="#4C78A8",
+        edgecolor="black",
+        linewidth=0.8,
+        zorder=3,
+    )
+    ax.set_axisbelow(True)
+    ax.grid(axis="y", linestyle="--", linewidth=0.7, color="#9a9a9a", zorder=0)
+    ax.set_xticks(edges)
+    ax.set_xlim(edges[0], edges[-1])
+    ax.axvline(0.0, color="#333333", linestyle="--", linewidth=0.8, zorder=2)
+
+    peak = float(np.max(counts)) if len(counts) else 1.0
+    ax.set_ylim(0, peak * 1.22)
+    for bar, count in zip(bars, counts):
+        count = int(count)
+        if count == 0:
+            continue
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + peak * 0.02,
+            str(count),
+            ha="center",
+            va="bottom",
+            fontsize=10,
+            color="#1a1a1a",
+        )
+
+    ax.set_xlabel("Residual (fitted ratio − measured ratio)")
+    ax.set_ylabel("Count")
+    ax.set_title("Residual histogram")
+    ax.text(
+        0.98,
+        0.98,
+        f"n = {values.size}\nbin width = {bin_width:g}",
+        transform=ax.transAxes,
+        ha="right",
+        va="top",
+        fontsize=10,
+        bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#cccccc", "linewidth": 0.6},
+    )
+    ax.tick_params(direction="out", length=3.5, width=0.8)
+    for spine in ax.spines.values():
+        spine.set_color("#222222")
+        spine.set_linewidth(0.8)
+    fig.tight_layout()
+    return fig, ax
+
+
 def residual_diagnosis(
         resid: np.ndarray,
         fitted: np.ndarray,
-        hist_bins: int,
+        bin_width: float,
         guide_color: str,
 ) -> None:
     """Plot the residual distribution and residuals against fitted values.
 
     :param resid: Fitted value minus observed ratio.
     :param fitted: Predicted ratio.
-    :param hist_bins: Histogram bins.
+    :param bin_width: Width of each residual histogram bin, in ratio units.
     :param guide_color: Color of the zero line.
     """
     resid = pd.Series(resid)
     print("\nresidual skew:", float(resid.skew()))
     print("residual kurtosis:", float(resid.kurtosis()))
 
-    plt.figure()
-    plt.hist(resid, bins=hist_bins)
-    plt.title("Residuals")
-    plt.xlabel("residual")
-    plt.ylabel("count")
-    plt.tight_layout()
+    plot_residual_histogram(resid.to_numpy(), bin_width)
     plt.show()
 
     plt.figure()
@@ -512,7 +588,7 @@ def main():
     print(f"\nmodeling table saved to\n\t{table_file}")
     print(f"parameters saved to\n\t{param_file}")
 
-    residual_diagnosis(model["resid"], model["fitted"], args.hist_bins, args.guide_color)
+    residual_diagnosis(model["resid"], model["fitted"], args.hist_bin_width, args.guide_color)
     plot_fit(
         data, model["params"], args.eta_clip, args.grid_size,
         args.fig_width, args.fig_height, args.scatter_size,
