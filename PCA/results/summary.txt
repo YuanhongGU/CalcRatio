@@ -1,0 +1,76 @@
+Principal component analysis of the original color readings.
+Features are Hue (degrees), Saturation, and Value.
+Each column is z-scored inside the sample set before the decomposition.
+PC1 is oriented so that it increases with the blue volume fraction.
+Experiment 1 uses stage 2. Experiment 2 uses its only stage.
+Luma and Luminance are recorded only in experiment 1, so they are not in the shared feature set.
+Shutter speed, aperture, and ISO are acquisition settings and are not included.
+
+[pooled] n = 63
+  Hue range: 107.5018 to 228.0374 deg (span 120.5356)
+  feature mean (std):
+    Hue: 179.0554 (31.6563)
+    Saturation: 0.5366 (0.3166)
+    Value: 0.5342 (0.0837)
+  correlations among features:
+    Hue vs Saturation: -0.0682
+    Hue vs Value: 0.0401
+    Saturation vs Value: -0.1516
+  variance explained:
+    PC1: eigenvalue 1.1837, 39.4579%, cumulative 39.4579%
+    PC2: eigenvalue 0.9708, 32.3603%, cumulative 71.8181%
+    PC3: eigenvalue 0.8455, 28.1819%, cumulative 100.0000%
+  loadings (eigenvector):
+    Hue: PC1 0.3866, PC2 0.9107, PC3 0.1451
+    Saturation: PC1 -0.6681, PC2 0.1682, PC3 0.7248
+    Value: PC1 0.6357, PC2 -0.3772, PC3 0.6735
+  correlation with blue volume fraction:
+    PC1: r = 0.1848
+    PC2: r = 0.7309
+    PC3: r = 0.2639
+
+[experiment_1] n = 21
+  Hue range: 125.8635 to 228.0374 deg (span 102.1739)
+  feature mean (std):
+    Hue: 171.1596 (32.8584)
+    Saturation: 0.9506 (0.0541)
+    Value: 0.5102 (0.1352)
+  correlations among features:
+    Hue vs Saturation: 0.5848
+    Hue vs Value: -0.1734
+    Saturation vs Value: -0.4196
+  variance explained:
+    PC1: eigenvalue 1.8083, 60.2783%, cumulative 60.2783%
+    PC2: eigenvalue 0.8368, 27.8934%, cumulative 88.1717%
+    PC3: eigenvalue 0.3548, 11.8283%, cumulative 100.0000%
+  loadings (eigenvector):
+    Hue: PC1 0.5814, PC2 0.5650, PC3 -0.5855
+    Saturation: PC1 0.6644, PC2 0.0857, PC3 0.7424
+    Value: PC1 -0.4696, PC2 0.8207, PC3 0.3255
+  correlation with blue volume fraction:
+    PC1: r = 0.8049
+    PC2: r = 0.4042
+    PC3: r = 0.0685
+
+[experiment_2] n = 42
+  Hue range: 107.5018 to 216.9967 deg (span 109.4950)
+  feature mean (std):
+    Hue: 183.0034 (30.6730)
+    Saturation: 0.3295 (0.1359)
+    Value: 0.5462 (0.0351)
+  correlations among features:
+    Hue vs Saturation: 0.2331
+    Hue vs Value: 0.3628
+    Saturation vs Value: 0.6401
+  variance explained:
+    PC1: eigenvalue 1.8503, 61.6764%, cumulative 61.6764%
+    PC2: eigenvalue 0.8060, 26.8655%, cumulative 88.5419%
+    PC3: eigenvalue 0.3437, 11.4581%, cumulative 100.0000%
+  loadings (eigenvector):
+    Hue: PC1 0.4462, PC2 0.8779, PC3 -0.1736
+    Saturation: PC1 0.6131, PC2 -0.4412, PC3 -0.6553
+    Value: PC1 0.6519, PC2 -0.1860, PC3 0.7351
+  correlation with blue volume fraction:
+    PC1: r = 0.7902
+    PC2: r = 0.2822
+    PC3: r = -0.4169

@@ -1,0 +1,10 @@
+scope,feature_1,feature_2,pearson_r
+pooled,Hue,Saturation,-0.06818576802062336
+pooled,Hue,Value,0.040087952870946054
+pooled,Saturation,Value,-0.15162899326158172
+experiment_1,Hue,Saturation,0.5847886584389677
+experiment_1,Hue,Value,-0.17340991264351108
+experiment_1,Saturation,Value,-0.4196324527376451
+experiment_2,Hue,Saturation,0.23314307256293162
+experiment_2,Hue,Value,0.3627773474947038
+experiment_2,Saturation,Value,0.6400757806984594

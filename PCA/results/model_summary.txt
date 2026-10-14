@@ -1,0 +1,104 @@
+Models for the blue volume fraction from Hue, Saturation, and Value.
+Experiment 1 uses stage 2. Experiment 2 uses its only stage.
+Linear models use the original units. Logistic slopes are on columns z-scored inside that sample set.
+coef_per_sd is the change in ratio for a one-standard-deviation change in that column.
+The nested F test asks whether Value improves ratio ~ Hue + Saturation.
+shared_logistic is the existing curve on z_hue and z_saturation, included as a reference on the pooled rows.
+
+[pooled] linear_hs: ratio = -0.7469 + 0.0066 * Hue + 0.1814 * Saturation
+[pooled] linear_hsv: ratio = -0.7837 + 0.0066 * Hue + 0.1841 * Saturation + 0.0681 * Value
+[pooled] logistic_hsv: Hue_z = (Hue - 179.0554) / 31.6563, Saturation_z = (Saturation - 0.5366) / 0.3166, Value_z = (Value - 0.5342) / 0.0837; ratio = 1 / (1 + exp(-(0.1156 + 0.9326 * Hue_z + 0.2796 * Saturation_z - 0.0913 * Value_z)))
+[experiment_1] linear_hs: ratio = -2.9060 + 0.0051 * Hue + 2.6592 * Saturation
+[experiment_1] linear_hsv: ratio = -3.3380 + 0.0050 * Hue + 2.9893 * Saturation + 0.2729 * Value
+[experiment_1] logistic_hsv: Hue_z = (Hue - 171.1596) / 32.8584, Saturation_z = (Saturation - 0.9506) / 0.0541, Value_z = (Value - 0.5102) / 0.1352; ratio = 1 / (1 + exp(-(0.1027 + 0.9625 * Hue_z + 0.6984 * Saturation_z - 0.2159 * Value_z)))
+[experiment_2] linear_hs: ratio = -0.6809 + 0.0049 * Hue + 1.0117 * Saturation
+[experiment_2] linear_hsv: ratio = -0.0509 + 0.0052 * Hue + 1.2249 * Saturation - 1.4036 * Value
+[experiment_2] logistic_hsv: Hue_z = (Hue - 183.0034) / 30.6730, Saturation_z = (Saturation - 0.3295) / 0.1359, Value_z = (Value - 0.5462) / 0.0351; ratio = 1 / (1 + exp(-(0.2242 + 0.7080 * Hue_z + 0.7917 * Saturation_z - 0.1517 * Value_z)))
+
+overall fit
+  [pooled] linear_hs: n=63  dof=60  R-squared=0.6375  RMSE=0.1588
+  [pooled] linear_hsv: n=63  dof=59  R-squared=0.6379  RMSE=0.1587
+  [pooled] logistic_hsv: n=63  dof=59  R-squared=0.6302  RMSE=0.1604
+  [experiment_1] linear_hs: n=21  dof=18  R-squared=0.8045  RMSE=0.1339
+  [experiment_1] linear_hsv: n=21  dof=17  R-squared=0.8160  RMSE=0.1299
+  [experiment_1] logistic_hsv: n=21  dof=17  R-squared=0.8247  RMSE=0.1268
+  [experiment_2] linear_hs: n=42  dof=39  R-squared=0.8556  RMSE=0.0914
+  [experiment_2] linear_hsv: n=42  dof=38  R-squared=0.8778  RMSE=0.0841
+  [experiment_2] logistic_hsv: n=42  dof=38  R-squared=0.8654  RMSE=0.0882
+  [pooled] shared_logistic: n=63  dof=60  R-squared=0.8012  RMSE=0.1176
+
+fit by experiment, using the model trained on that scope
+  [pooled] linear_hs / experiment 1: n=21  R-squared=0.6428  RMSE=0.1810
+  [pooled] linear_hs / experiment 2: n=42  R-squared=0.6294  RMSE=0.1465
+  [pooled] linear_hsv / experiment 1: n=21  R-squared=0.6392  RMSE=0.1819
+  [pooled] linear_hsv / experiment 2: n=42  R-squared=0.6330  RMSE=0.1457
+  [pooled] logistic_hsv / experiment 1: n=21  R-squared=0.6586  RMSE=0.1769
+  [pooled] logistic_hsv / experiment 2: n=42  R-squared=0.6038  RMSE=0.1514
+  [experiment_1] linear_hs / experiment 1: n=21  R-squared=0.8045  RMSE=0.1339
+  [experiment_1] linear_hsv / experiment 1: n=21  R-squared=0.8160  RMSE=0.1299
+  [experiment_1] logistic_hsv / experiment 1: n=21  R-squared=0.8247  RMSE=0.1268
+  [experiment_2] linear_hs / experiment 2: n=42  R-squared=0.8556  RMSE=0.0914
+  [experiment_2] linear_hsv / experiment 2: n=42  R-squared=0.8778  RMSE=0.0841
+  [experiment_2] logistic_hsv / experiment 2: n=42  R-squared=0.8654  RMSE=0.0882
+  [pooled] shared_logistic / experiment 1: n=21  R-squared=0.7809  RMSE=0.1417
+  [pooled] shared_logistic / experiment 2: n=42  R-squared=0.8152  RMSE=0.1034
+
+coefficients
+  [pooled] linear_hs
+    intercept: coef -0.7469  se 0.1262  t -5.9158  p 0.0000 
+    Hue: coef 0.0066  se 0.0007  t 10.0558  p 0.0000  per SD 0.2083
+    Saturation: coef 0.1814  se 0.0654  t 2.7733  p 0.0074  per SD 0.0574
+  [pooled] linear_hsv
+    intercept: coef -0.7837  se 0.1865  t -4.2032  p 0.0001 
+    Hue: coef 0.0066  se 0.0007  t 9.9651  p 0.0000  per SD 0.2081
+    Saturation: coef 0.1841  se 0.0667  t 2.7613  p 0.0077  per SD 0.0583
+    Value: coef 0.0681  se 0.2518  t 0.2705  p 0.7877  per SD 0.0057
+  [pooled] logistic_hsv
+    intercept: coef 0.1156  se 0.0996  t 1.1602  p 0.2506 
+    Hue: coef 0.9326  se 0.1207  t 7.7248  p 0.0000  per SD 0.9326
+    Saturation: coef 0.2796  se 0.1081  t 2.5854  p 0.0122  per SD 0.2796
+    Value: coef -0.0913  se 0.1265  t -0.7219  p 0.4732  per SD -0.0913
+  [experiment_1] linear_hs
+    intercept: coef -2.9060  se 0.6043  t -4.8091  p 0.0001 
+    Hue: coef 0.0051  se 0.0012  t 4.2285  p 0.0005  per SD 0.1686
+    Saturation: coef 2.6592  se 0.7373  t 3.6068  p 0.0020  per SD 0.1438
+  [experiment_1] linear_hsv
+    intercept: coef -3.3380  se 0.7340  t -4.5478  p 0.0003 
+    Hue: coef 0.0050  se 0.0012  t 4.1151  p 0.0007  per SD 0.1645
+    Saturation: coef 2.9893  se 0.8023  t 3.7259  p 0.0017  per SD 0.1616
+    Value: coef 0.2729  se 0.2642  t 1.0329  p 0.3161  per SD 0.0369
+  [experiment_1] logistic_hsv
+    intercept: coef 0.1027  se 0.1737  t 0.5913  p 0.5621 
+    Hue: coef 0.9625  se 0.2763  t 3.4831  p 0.0028  per SD 0.9625
+    Saturation: coef 0.6984  se 0.3344  t 2.0884  p 0.0521  per SD 0.6984
+    Value: coef -0.2159  se 0.2490  t -0.8670  p 0.3980  per SD -0.2159
+  [experiment_2] linear_hs
+    intercept: coef -0.6809  se 0.0910  t -7.4844  p 0.0000 
+    Hue: coef 0.0049  se 0.0005  t 9.7947  p 0.0000  per SD 0.1492
+    Saturation: coef 1.0117  se 0.1121  t 9.0218  p 0.0000  per SD 0.1375
+  [experiment_2] linear_hsv
+    intercept: coef -0.0509  se 0.2542  t -0.2002  p 0.8424 
+    Hue: coef 0.0052  se 0.0005  t 10.8242  p 0.0000  per SD 0.1604
+    Saturation: coef 1.2249  se 0.1323  t 9.2612  p 0.0000  per SD 0.1664
+    Value: coef -1.4036  se 0.5338  t -2.6294  p 0.0123  per SD -0.0493
+  [experiment_2] logistic_hsv
+    intercept: coef 0.2242  se 0.0740  t 3.0295  p 0.0044 
+    Hue: coef 0.7080  se 0.0839  t 8.4383  p 0.0000  per SD 0.7080
+    Saturation: coef 0.7917  se 0.1062  t 7.4572  p 0.0000  per SD 0.7917
+    Value: coef -0.1517  se 0.1186  t -1.2788  p 0.2087  per SD -0.1517
+
+variance inflation of Hue, Saturation, and Value
+  [pooled] Hue: VIF 1.0056
+  [pooled] Saturation: VIF 1.0276
+  [pooled] Value: VIF 1.0245
+  [experiment_1] Hue: VIF 1.5344
+  [experiment_1] Saturation: VIF 1.8063
+  [experiment_1] Value: VIF 1.2254
+  [experiment_2] Hue: VIF 1.1516
+  [experiment_2] Saturation: VIF 1.6940
+  [experiment_2] Value: VIF 1.8447
+
+nested test of Value after Hue and Saturation
+  [pooled] F(1, 59) = 0.0732, p = 0.7877
+  [experiment_1] F(1, 17) = 1.0668, p = 0.3161
+  [experiment_2] F(1, 38) = 6.9140, p = 0.0123
