@@ -20,6 +20,108 @@ from data_preprocess import circular_mean_deg, split_csv
 
 ROOT = Path(__file__).resolve().parent.parent
 PARAM_NAMES = ["intercept", "z_hue", "z_saturation"]
+BG = "#000000"
+TEXT = "#f3f4f6"
+MUTED = "#9ca3af"
+PINK = "#e84d85"
+PURPLE = "#9b6ca8"
+LIME = "#c6da58"
+BLUE = "#24b8ec"
+ORANGE = "#ee7954"
+GRID = "#4b5563"
+GROUP_NAMES = {"1": "Experiment 1", "2": "Experiment 2"}
+# Published copies. CalcRatio names and the wiki names are the same five plots.
+PUBLISHED_FIGURES = {
+    "predicted": ("fig-17-predicted-vs-prepared.png", "fig-13-predicted-vs-prepared.png"),
+    "surface": ("fig-18-logistic-surface.png", "fig-14-logistic-surface.png"),
+    "histogram": ("fig-19-residual-histogram.png", "fig-15-residual-histogram.png"),
+    "residual": ("fig-20-residual-vs-fitted.png", "fig-16-residual-vs-fitted.png"),
+    "qq": ("fig-21-residual-qq.png", "fig-17-residual-qq.png"),
+}
+
+
+def apply_dark_theme() -> None:
+    """Black figure with the software-wiki mosaic colors."""
+    plt.rcParams.update({
+        "figure.facecolor": BG,
+        "axes.facecolor": BG,
+        "savefig.facecolor": BG,
+        "savefig.edgecolor": "none",
+        "text.color": TEXT,
+        "axes.labelcolor": TEXT,
+        "axes.edgecolor": MUTED,
+        "axes.titlecolor": TEXT,
+        "xtick.color": TEXT,
+        "ytick.color": TEXT,
+        "grid.color": GRID,
+        "legend.facecolor": "#111111",
+        "legend.edgecolor": MUTED,
+        "legend.labelcolor": TEXT,
+        "font.size": 11,
+        "axes.labelsize": 12,
+        "axes.titlesize": 13,
+    })
+
+
+def style_axes(ax) -> None:
+    """Light ticks and a framed legend on a black axes."""
+    ax.set_facecolor(BG)
+    ax.tick_params(colors=TEXT)
+    ax.xaxis.label.set_color(TEXT)
+    ax.yaxis.label.set_color(TEXT)
+    ax.title.set_color(TEXT)
+    for spine in ax.spines.values():
+        spine.set_color(MUTED)
+        spine.set_linewidth(0.8)
+    ax.grid(True, color=GRID, linewidth=0.5)
+    ax.set_axisbelow(True)
+    legend = ax.get_legend()
+    if legend is not None:
+        frame = legend.get_frame()
+        frame.set_facecolor("#111111")
+        frame.set_edgecolor(MUTED)
+        for text in legend.get_texts():
+            text.set_color(TEXT)
+
+
+def style_3d(ax) -> None:
+    """Black panes and light axis text for a 3D axes."""
+    ax.set_facecolor(BG)
+    for axis in (ax.xaxis, ax.yaxis, ax.zaxis):
+        axis.pane.set_facecolor((0, 0, 0, 1))
+        axis.pane.set_edgecolor(MUTED)
+        axis.label.set_color(TEXT)
+    ax.tick_params(colors=TEXT)
+    ax.title.set_color(TEXT)
+    legend = ax.get_legend()
+    if legend is not None:
+        frame = legend.get_frame()
+        frame.set_facecolor("#111111")
+        frame.set_edgecolor(MUTED)
+        for text in legend.get_texts():
+            text.set_color(TEXT)
+
+
+def group_label(group) -> str:
+    """Readable batch name for the legend."""
+    return GROUP_NAMES.get(str(group), str(group))
+
+
+def save_published(fig, key: str, dpi: int = 160) -> None:
+    """Write one plot under the CalcRatio name and the wiki name."""
+    calc_name, wiki_name = PUBLISHED_FIGURES[key]
+    fig.patch.set_facecolor(BG)
+    targets = [ROOT / "figures" / calc_name]
+    wiki_dir = ROOT.parent / "SoftwareWiki" / "figures"
+    if wiki_dir.is_dir():
+        targets.append(wiki_dir / wiki_name)
+    for path in targets:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fig.savefig(path, dpi=dpi, bbox_inches="tight", pad_inches=0.35, facecolor=BG, edgecolor="none")
+        print(f"figure saved to\n\t{path}")
+
+
+apply_dark_theme()
 
 
 def parse_args() -> argparse.Namespace:
@@ -76,13 +178,13 @@ def parse_args() -> argparse.Namespace:
                         help="marker size of the 3D scatter")
     parser.add_argument("--surface_alpha",       required=False, type=float, default=0.3,
                         help="opacity of the fitted surface")
-    parser.add_argument("--surface_color",       required=False, type=str,   default="crimson",
+    parser.add_argument("--surface_color",       required=False, type=str,   default=PURPLE,
                         help="color of the fitted surface")
-    parser.add_argument("--guide_color",         required=False, type=str,   default="r",
+    parser.add_argument("--guide_color",         required=False, type=str,   default=PINK,
                         help="color of residual and identity guide lines")
     parser.add_argument("--markers",             required=False, type=str,   default="o,^,s,D",
                         help="comma-separated markers, one per experiment")
-    parser.add_argument("--colors",              required=False, type=str,   default="tab:blue,tab:orange,tab:green,tab:red",
+    parser.add_argument("--colors",              required=False, type=str,   default=f"{BLUE},{ORANGE},{LIME},{PINK}",
                         help="comma-separated colors, one per experiment")
     parser.add_argument("--coef_digits",         required=False, type=int,   default=4,
                         help="decimal places for printed coefficients and R-squared")
@@ -375,16 +477,14 @@ def plot_residual_histogram(resid: np.ndarray, bin_width: float):
     counts, _, bars = ax.hist(
         values,
         bins=edges,
-        color="#4C78A8",
-        edgecolor="black",
-        linewidth=0.8,
+        color=BLUE,
+        edgecolor=TEXT,
+        linewidth=0.6,
         zorder=3,
     )
-    ax.set_axisbelow(True)
-    ax.grid(axis="y", linestyle="--", linewidth=0.7, color="#9a9a9a", zorder=0)
     ax.set_xticks(edges)
     ax.set_xlim(edges[0], edges[-1])
-    ax.axvline(0.0, color="#333333", linestyle="--", linewidth=0.8, zorder=2)
+    ax.axvline(0.0, color=PINK, linestyle="--", linewidth=1.2, zorder=2, label="Zero residual")
 
     peak = float(np.max(counts)) if len(counts) else 1.0
     ax.set_ylim(0, peak * 1.22)
@@ -399,7 +499,7 @@ def plot_residual_histogram(resid: np.ndarray, bin_width: float):
             ha="center",
             va="bottom",
             fontsize=10,
-            color="#1a1a1a",
+            color=TEXT,
         )
 
     ax.set_xlabel("Residual (fitted ratio − measured ratio)")
@@ -413,12 +513,11 @@ def plot_residual_histogram(resid: np.ndarray, bin_width: float):
         ha="right",
         va="top",
         fontsize=10,
-        bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "edgecolor": "#cccccc", "linewidth": 0.6},
+        color=TEXT,
+        bbox={"boxstyle": "round,pad=0.3", "facecolor": "#111111", "edgecolor": MUTED, "linewidth": 0.6},
     )
-    ax.tick_params(direction="out", length=3.5, width=0.8)
-    for spine in ax.spines.values():
-        spine.set_color("#222222")
-        spine.set_linewidth(0.8)
+    ax.legend(frameon=True, loc="upper left")
+    style_axes(ax)
     fig.tight_layout()
     return fig, ax
 
@@ -428,6 +527,9 @@ def residual_diagnosis(
         fitted: np.ndarray,
         bin_width: float,
         guide_color: str,
+        data: pd.DataFrame,
+        markers: list[str],
+        colors: list[str],
 ) -> None:
     """Plot the residual distribution and residuals against fitted values.
 
@@ -435,20 +537,38 @@ def residual_diagnosis(
     :param fitted: Predicted ratio.
     :param bin_width: Width of each residual histogram bin, in ratio units.
     :param guide_color: Color of the zero line.
+    :param data: Table aligned with ``fitted``, including the experiment label.
+    :param markers: Marker cycle, one entry per experiment.
+    :param colors: Color cycle, one entry per experiment.
     """
     resid = pd.Series(resid)
     print("\nresidual skew:", float(resid.skew()))
     print("residual kurtosis:", float(resid.kurtosis()))
 
-    plot_residual_histogram(resid.to_numpy(), bin_width)
+    histogram, _axis = plot_residual_histogram(resid.to_numpy(), bin_width)
+    save_published(histogram, "histogram")
     plt.show()
 
-    plt.figure()
-    plt.scatter(fitted, resid)
-    plt.axhline(0, color=guide_color)
-    plt.xlabel("Fitted")
-    plt.ylabel("Residual")
-    plt.tight_layout()
+    fig, ax = plt.subplots(figsize=(8.0, 6.0))
+    for index, (group, sub) in enumerate(data.groupby("group")):
+        ax.scatter(
+            fitted[sub.index], resid.to_numpy()[sub.index],
+            marker=markers[index % len(markers)],
+            color=colors[index % len(colors)],
+            edgecolors=TEXT,
+            linewidths=0.45,
+            s=46,
+            zorder=3,
+            label=group_label(group),
+        )
+    ax.axhline(0, color=guide_color, linewidth=1.4, label="Zero residual", zorder=2)
+    ax.set_xlabel("Fitted blue volume fraction")
+    ax.set_ylabel("Residual (fitted − measured)")
+    ax.set_title("Residuals against the fitted fraction")
+    ax.legend(frameon=True, loc="best")
+    style_axes(ax)
+    fig.tight_layout()
+    save_published(fig, "residual")
     plt.show()
 
 
@@ -489,15 +609,18 @@ def plot_fit(
     grid_ratio = mixing_ratio(grid_hue, grid_sat, params, eta_clip)
 
     fig = plt.figure(figsize=(fig_width, fig_height))
+    fig.patch.set_facecolor(BG)
     ax = fig.add_subplot(111, projection="3d")
     for index, (group, sub) in enumerate(data.groupby("group")):
         ax.scatter(
             sub["z_hue"], sub["z_saturation"], sub["ratio"],
             marker=markers[index % len(markers)],
             color=colors[index % len(colors)],
+            edgecolors=TEXT,
+            linewidths=0.4,
             s=scatter_size,
             depthshade=False,
-            label=group,
+            label=group_label(group),
         )
 
     ax.plot_surface(
@@ -506,12 +629,14 @@ def plot_fit(
         shade=False,
         antialiased=False,
     )
-    ax.set_xlabel("z_hue")
-    ax.set_ylabel("z_saturation")
-    ax.set_zlabel("ratio")
-    ax.set_title("Blue / Yellow mixing fit")
-    ax.legend(loc="upper left")
+    ax.set_xlabel("Normalized hue (z_hue)", labelpad=10)
+    ax.set_ylabel("Normalized saturation (z_saturation)", labelpad=10)
+    ax.set_zlabel("Blue volume fraction", labelpad=12)
+    ax.set_title("Shared logistic surface")
+    ax.legend(loc="upper left", title="Batch")
+    style_3d(ax)
     plt.tight_layout()
+    save_published(fig, "surface")
     plt.show()
 
 
@@ -534,19 +659,28 @@ def plot_pred_vs_actual(
     :param markers: Marker cycle, one entry per experiment.
     :param colors: Color cycle, one entry per experiment.
     """
-    plt.figure(figsize=(fig_width, fig_height))
+    fig, ax = plt.subplots(figsize=(fig_width, fig_height))
     for index, (group, sub) in enumerate(data.groupby("group")):
-        plt.scatter(
+        ax.scatter(
             sub["ratio"], fitted[sub.index],
             marker=markers[index % len(markers)],
             color=colors[index % len(colors)],
-            label=group,
+            edgecolors=TEXT,
+            linewidths=0.45,
+            s=46,
+            label=group_label(group),
+            zorder=3,
         )
-    plt.plot([0, 1], [0, 1], color=guide_color)
-    plt.xlabel("actual ratio")
-    plt.ylabel("predicted ratio")
-    plt.legend()
-    plt.tight_layout()
+    ax.plot([0, 1], [0, 1], color=guide_color, linewidth=1.4, label="y = x", zorder=2)
+    ax.set_xlabel("Prepared blue volume fraction")
+    ax.set_ylabel("Predicted blue volume fraction")
+    ax.set_title("Predicted fraction against the prepared fraction")
+    ax.set_xlim(-0.05, 1.05)
+    ax.set_ylim(-0.05, 1.05)
+    ax.legend(frameon=True, loc="best", title="Batch")
+    style_axes(ax)
+    fig.tight_layout()
+    save_published(fig, "predicted")
     plt.show()
 
 
@@ -588,7 +722,10 @@ def main():
     print(f"\nmodeling table saved to\n\t{table_file}")
     print(f"parameters saved to\n\t{param_file}")
 
-    residual_diagnosis(model["resid"], model["fitted"], args.hist_bin_width, args.guide_color)
+    residual_diagnosis(
+        model["resid"], model["fitted"], args.hist_bin_width, args.guide_color,
+        data, markers, colors,
+    )
     plot_fit(
         data, model["params"], args.eta_clip, args.grid_size,
         args.fig_width, args.fig_height, args.scatter_size,
@@ -599,8 +736,26 @@ def main():
         args.guide_color, markers, colors,
     )
 
-    sm.qqplot(model["resid"], line=args.qq_line)
-    plt.tight_layout()
+    qq_figure = sm.qqplot(model["resid"], line=args.qq_line)
+    qq_axis = qq_figure.axes[0]
+    lines = qq_axis.get_lines()
+    if lines:
+        lines[0].set_color(BLUE)
+        lines[0].set_markeredgecolor(TEXT)
+        lines[0].set_markeredgewidth(0.4)
+        lines[0].set_markersize(6)
+        lines[0].set_label("Residual")
+    if len(lines) > 1:
+        lines[-1].set_color(PINK)
+        lines[-1].set_linewidth(1.4)
+        lines[-1].set_label("Normal reference")
+    qq_axis.set_xlabel("Theoretical normal quantile")
+    qq_axis.set_ylabel("Residual quantile")
+    qq_axis.set_title("Normal QQ plot of the residuals")
+    qq_axis.legend(frameon=True, loc="best")
+    style_axes(qq_axis)
+    qq_figure.tight_layout()
+    save_published(qq_figure, "qq")
     plt.show()
 
 
